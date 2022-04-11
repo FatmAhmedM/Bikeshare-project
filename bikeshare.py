@@ -22,38 +22,39 @@ def get_filters():
     
     c = list(CITY_DATA.keys())
     m= [m for m in calendar.month_name if m != '']
-    m.append('all') 
+    m.append('All')
+    m = [m for m in m if m not in ('July', 'August', 'September', 'October', 'November', 'December')] 
     d = [d for d in calendar.day_name ]
-    d.append('all')
+    d.append('All')
     
     
     while True:
         
         try: 
-            city = input('There are only three avalible cities:\n   1. chicago \n    2. new york city \n    3. washington \n Please enter the city name as it is provided \n')
+            city = input('There are only three avalible cities:\n  1. Chicago \n    2. New York City \n    3. Washington \n').lower()
         except:
-             print('your input not valid, please make sure to type the names of the citis in a correct way')
+             print('Please make sure that you chose one of the three avalible cities')
              continue
         if city not in c:
-            print('your input not valid, please make sure to type the names of the citis in a correct way')
+            print('Please make sure that you chose one of the three avalible cities')
             continue
             # TO DO: get user input for month (all, january, february, ... , june)
         try:    
-            month =input('At which month? \n (for all months just type "all" ) or type the month name \n 1. January \n 2. Fabruary \n 3. March \n 4. April \n 5. May \n or 6.June \n')
+            month =input('At which month? \n (for all months just type "all" ) or type the month name \n 1. January \n 2. Fabruary \n 3. March \n 4. April \n 5. May \n or 6.June \n').title()
         except:
-            print('your input not valid, please make sure to type the names as provided"')
+            print('There are only six months available for this data, please make sure to type one of them"')
             continue
         if month not in m:
-            print('your input not valid, please make sure to type the names as provided!')
+            print('There are only six months available for this data, please make sure to type one of them')
             continue
         try:    
             # TO DO: get user input for day of week (all, monday, tuesday, ... sunday)
-            day = input('And which day? again please type "all" if you don\'t want a specific day. else? please type the day you want as following:\n 1. Saturday \n 2. Sunday \n 3. Monday \n 4. Tuesday \n 5.Wednesday \n 5.Thrusday \n or 7.Friday \n')
+            day = input('And which day? again please type "all" if you don\'t want a specific day. else? write the day you want:\n 1. Saturday \n 2. Sunday \n 3. Monday \n 4. Tuesday \n 5.Wednesday \n 5.Thrusday \n or 7.Friday \n').title()
         except:
-            print('your input not valid, please make sure to type the word "all" or day\'s name as provided!')
+            print('seems you didn\'nt enter your day correclty, you can use the list above to help!')
             continue
         if day not in d:
-            print('your input not valid, please make sure to type the word "all" or day\'s name as provided!')
+            print('seems you didn\'nt enter your day correclty, you can use the list above to help!')
             continue
         break
             
@@ -74,17 +75,17 @@ def load_data(city, month, day):
         df - Pandas DataFrame containing city data filtered by month and day
     """
    
-    df =pd.read_csv(CITY_DATA[city])
+    df =pd.read_csv(CITY_DATA[city.lower()])
     
     df['Start Time'] = pd.to_datetime(df['Start Time'])
     df['month'] = df['Start Time'].dt.month
     df['day_of_week'] = df['Start Time'].dt.weekday_name
     
-    if month != 'all':
+    if month != 'All':
         m = [m for m in calendar.month_name if m !='']
         month = m.index(month) +1 
         df['month']=df[df['month']==month]
-    if day != 'all':
+    if day != 'All':
         df['day_of_week'] = df[df['day_of_week'] == day]
     return df
 
@@ -105,7 +106,7 @@ def time_stats(df):
     hour = df['hour'] = df['Start Time'].dt.hour
     result3 =print('{} is the most common hour'.format(hour.mode()[0]))
 
-    print("\nThis took %s seconds." % (time.time() - start_time))
+    print("\nThis took %s seconds." % round(time.time() - start_time,2))
     print('-'*40)
     return result1,result2,result3
 
@@ -128,7 +129,7 @@ def station_stats(df):
     
     result3 = print('this is the  most frequent trip which combines  {}'.format(combination.mode()[0] ))
 
-    print("\nThis took %s seconds." % (time.time() - start_time))
+    print("\nThis took %s seconds." % round(time.time() - start_time,2))
     print('-'*40)
     return result1,result2,result3
 
@@ -146,7 +147,7 @@ def trip_duration_stats(df):
     # TO DO: display mean travel time
     result2 =print('The mean travel time is {} '.format(df['sub'].mean()))
 
-    print("\nThis took %s seconds." % (time.time() - start_time))
+    print("\nThis took %s seconds." % round(time.time() - start_time,2))
     print('-'*40)
     return result1, result2
 
@@ -171,11 +172,38 @@ def user_stats(df):
         birth_list =[i for i in df['Birth Year'] if i !=0]   
         birth_array =np.array(birth_list)         
         result2 = print('the earliest birth year is {} , the most recent one is {} and the common on is {}'.format(birth_array.min(),birth_array.max(),mode(birth_list)))
-    print("\nThis took %s seconds." % (time.time() - start_time))
+    print("\nThis took %s seconds." % round(time.time() - start_time, 2))
     print('-'*40)
     return result
 
 
+def display_raw_data(df):
+
+    """ Displaying the raw data under the user's request """
+    i =0
+    ii= 4
+    df_length = len(df.index)
+    print('There are {} rows of the dat'.format(df_length))
+    raw = input('Would you like to display five rows of the data? Type Yes or No, please.').lower()
+    while True:
+        if raw == 'yes':
+            if df_length >= 5:       
+                print(df.loc[i:ii])
+                i+=5
+                ii+=5
+                df_length -=5
+                print('Note that: There are {} raws left'.format(df_length))
+                raw = input('Would you like to display more? Type Yes or No, please.').lower()
+        
+            elif df_length < 5:         
+                print(df.loc[i:])
+                break
+        elif raw == 'no':
+            break 
+        else:
+            raw = input("\nYour input is invalid. Please enter only 'yes' or 'no'\n").lower() 
+
+        
 def main():
     while True:
         city, month, day = get_filters()
@@ -185,9 +213,20 @@ def main():
         station_stats(df)
         trip_duration_stats(df)
         user_stats(df)
-
-        restart = input('\nWould you like to restart? Enter yes or no.\n')
-        if restart.lower() != 'yes':
+        display_raw_data(df)
+        
+        while True:
+            try:                   
+                restart = input('\nWould you like to restart? Enter yes or no.\n').lower()
+            except:
+                print('Invalid input,please enter either Yes or No')
+                continue
+            if restart not in ['yes','no']:
+                print('Invalid input,please enter either Yes or No')    
+                continue 
+            break 
+          
+        if restart != 'yes':
             break
 
 

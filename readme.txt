@@ -17,5 +17,9 @@ This is a reference of the new ideas that I had applied in the code and how I tr
     
 4.for the combination trip requirment here the ref I have used: 
 https://stackoverflow.com/questions/55719762/how-to-calculate-mode-over-two-columns-in-a-python-dataframe    
+
+
     
+5. for excluding multiple elemnts in the (m) list I have used:
+	https://stackoverflow.com/questions/36268749/remove-multiple-items-from-a-python-list-in-just-one-statement
     
